@@ -8,8 +8,36 @@
     <input type="hidden" name="seance" value="{{ event_id }}" id="seance" />
     <input type="hidden" name="lInscription" id="lInscription" />
     <input type="hidden" name="user" value="{{ user }}" id="user" />
-    {{ form.as_p }}
-    <button type="submit">Terminer l'inscription</button>
+    {% for field in form %}
+        <script>
+            console.log(`{{ field|safe }}`);
+        </script>
+        {% if field.is_hidden %}
+            {{ field }}
+        {% else %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {% if field.field.widget.input_type in 'text,password,email,date' %}
+                    <input type="{{ field.field.widget.input_type }}" class="drac-input drac-input-border-md drac-input-purple drac-text-white drac-m-xs" name="{{ field.name }}" id="{{ field.id_for_label }}" {% if field.field.required %}required{% endif %}>
+                {% elif field.field.widget.input_type == 'textarea' %}
+                    <textarea class="drac-input drac-input-border-md drac-input-purple drac-text-white drac-m-xs" name="{{ field.name }}" id="{{ field.id_for_label }}" {% if field.field.required %}required{% endif %}>{{ field.value }}</textarea>
+                {% elif field.field.widget.input_type == 'radio' %}
+                    {% for choice in field %}
+                        <div>
+                            <input type="radio" class="drac-radio drac-radio-purple" id="{{ choice.id_for_label }}" name="{{ choice.name }}" value="{{ choice.choice_value }}" {% if choice.is_checked %}checked{% endif %}>
+                            <label for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
+                        </div>
+                    {% endfor %}
+                {% elif field.field.widget.input_type == 'select' %}
+                    {{ form.nationalite }}
+                {% else %}
+                    {{ field }}
+                {% endif %}
+            </div>
+        {% endif %}
+        <br>
+    {% endfor %}
+    <button type="submit" class="drac-btn drac-bg-animated">Terminer l'inscription</button>
 </form>
 <script>
     var uid = JSON.parse('{{ user|safe }}')[0].pk;
